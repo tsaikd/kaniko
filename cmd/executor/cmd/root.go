@@ -82,6 +82,11 @@ var RootCmd = &cobra.Command{
 		if err := os.Chdir("/"); err != nil {
 			exit(errors.Wrap(err, "error changing to root dir"))
 		}
+
+		for _, whitelist := range opts.ExtraWhitelistPaths {
+			util.AddVolumePathToInitialWhitelist(whitelist)
+		}
+
 		image, err := executor.DoBuild(opts)
 		if err != nil {
 			exit(errors.Wrap(err, "error building image"))
@@ -131,6 +136,7 @@ func addKanikoOptionsFlags(cmd *cobra.Command) {
 	RootCmd.PersistentFlags().DurationVarP(&opts.CacheTTL, "cache-ttl", "", time.Hour*336, "Cache timeout in hours. Defaults to two weeks.")
 	RootCmd.PersistentFlags().VarP(&opts.InsecureRegistries, "insecure-registry", "", "Insecure registry using plain HTTP to push and pull. Set it repeatedly for multiple registries.")
 	RootCmd.PersistentFlags().VarP(&opts.SkipTLSVerifyRegistries, "skip-tls-verify-registry", "", "Insecure registry ignoring TLS verify to push and pull. Set it repeatedly for multiple registries.")
+	RootCmd.PersistentFlags().VarP(&opts.ExtraWhitelistPaths, "extra-whitelist-path", "", "Add extra whitelist path.")
 }
 
 // addHiddenFlags marks certain flags as hidden from the executor help text
