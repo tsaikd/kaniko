@@ -457,6 +457,16 @@ func AddVolumePathToWhitelist(path string) {
 	volumes = append(volumes, path)
 }
 
+// AddVolumePathToInitialWhitelist adds the given path to the initial volume whitelist.
+func AddVolumePathToInitialWhitelist(path string) {
+	logrus.Infof("adding volume %s to initial whitelist", path)
+	initialWhitelist = append(initialWhitelist, WhitelistEntry{
+		Path:            path,
+		PrefixMatchOnly: true,
+	})
+	volumes = append(volumes, path)
+}
+
 // DownloadFileToDest downloads the file at rawurl to the given dest for the ADD command
 // From add command docs:
 // 	1. If <src> is a remote file URL:
