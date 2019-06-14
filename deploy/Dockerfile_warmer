@@ -14,13 +14,13 @@
 
 # Builds the static Go image to execute in a Kubernetes job
 
-FROM golang:1.10
+FROM golang:1.12 AS build
 WORKDIR /go/src/github.com/GoogleContainerTools/kaniko
 COPY . .
 RUN make out/warmer
 
 FROM scratch
-COPY --from=0 /go/src/github.com/GoogleContainerTools/kaniko/out/warmer /kaniko/warmer
+COPY --from=build /go/src/github.com/GoogleContainerTools/kaniko/out/warmer /kaniko/warmer
 COPY files/ca-certificates.crt /kaniko/ssl/certs/
 ENV HOME /root
 ENV USER /root

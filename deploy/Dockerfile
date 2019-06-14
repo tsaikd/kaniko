@@ -14,7 +14,7 @@
 
 # Builds the static Go image to execute in a Kubernetes job
 
-FROM golang:1.10
+FROM golang:1.12 AS build
 WORKDIR /go/src/github.com/GoogleContainerTools/kaniko
 # Get GCR credential helper
 ADD https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v1.5.0/docker-credential-gcr_linux_amd64-1.5.0.tar.gz /usr/local/bin/
@@ -28,11 +28,11 @@ COPY . .
 RUN make
 
 FROM scratch
-COPY --from=0 /go/src/github.com/GoogleContainerTools/kaniko/out/executor /kaniko/executor
-COPY --from=0 /usr/local/bin/docker-credential-gcr /kaniko/docker-credential-gcr
-COPY --from=0 /go/src/github.com/awslabs/amazon-ecr-credential-helper/bin/linux-amd64/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
+COPY --from=build /go/src/github.com/GoogleContainerTools/kaniko/out/executor /kaniko/executor
+COPY --from=build /usr/local/bin/docker-credential-gcr /kaniko/docker-credential-gcr
+COPY --from=build /go/src/github.com/awslabs/amazon-ecr-credential-helper/bin/linux-amd64/docker-credential-ecr-login /kaniko/docker-credential-ecr-login
 COPY files/ca-certificates.crt /kaniko/ssl/certs/
-COPY --from=0 /root/.docker/config.json /kaniko/.docker/config.json
+COPY --from=build /root/.docker/config.json /kaniko/.docker/config.json
 ENV HOME /root
 ENV USER /root
 ENV PATH /usr/local/bin:/kaniko
