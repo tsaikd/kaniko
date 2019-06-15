@@ -24,12 +24,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GoogleContainerTools/kaniko/pkg/timing"
-
 	"github.com/GoogleContainerTools/kaniko/pkg/buildcontext"
 	"github.com/GoogleContainerTools/kaniko/pkg/config"
 	"github.com/GoogleContainerTools/kaniko/pkg/constants"
 	"github.com/GoogleContainerTools/kaniko/pkg/executor"
+	"github.com/GoogleContainerTools/kaniko/pkg/snapshot"
+	"github.com/GoogleContainerTools/kaniko/pkg/timing"
 	"github.com/GoogleContainerTools/kaniko/pkg/util"
 	"github.com/genuinetools/amicontained/container"
 	"github.com/pkg/errors"
@@ -69,6 +69,9 @@ var RootCmd = &cobra.Command{
 		}
 		if err := resolveDockerfilePath(); err != nil {
 			return errors.Wrap(err, "error resolving dockerfile path")
+		}
+		if err := snapshot.SetSnapshotPathPrefix(opts.SnapshotPathPrefix); err != nil {
+			return errors.Wrap(err, "error set snapshot path prefix")
 		}
 		for _, whitelist := range opts.ExtraWhitelistPaths {
 			util.AddVolumePathToInitialWhitelist(whitelist)
@@ -117,6 +120,7 @@ func addKanikoOptionsFlags(cmd *cobra.Command) {
 	RootCmd.PersistentFlags().StringVarP(&opts.Bucket, "bucket", "b", "", "Name of the GCS bucket from which to access build context as tarball.")
 	RootCmd.PersistentFlags().VarP(&opts.Destinations, "destination", "d", "Registry the final image should be pushed to. Set it repeatedly for multiple destinations.")
 	RootCmd.PersistentFlags().StringVarP(&opts.SnapshotMode, "snapshotMode", "", "full", "Change the file attributes inspected during snapshotting")
+	RootCmd.PersistentFlags().StringVarP(&opts.SnapshotPathPrefix, "snapshot-path-prefix", "", constants.KanikoDir, "Change the snapshot path prefix")
 	RootCmd.PersistentFlags().VarP(&opts.BuildArgs, "build-arg", "", "This flag allows you to pass in ARG values at build time. Set it repeatedly for multiple values.")
 	RootCmd.PersistentFlags().BoolVarP(&opts.Insecure, "insecure", "", false, "Push to insecure registry using plain HTTP")
 	RootCmd.PersistentFlags().BoolVarP(&opts.SkipTLSVerify, "skip-tls-verify", "", false, "Push to insecure registry ignoring TLS verify")

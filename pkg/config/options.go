@@ -25,6 +25,7 @@ type KanikoOptions struct {
 	DockerfilePath          string
 	SrcContext              string
 	SnapshotMode            string
+	SnapshotPathPrefix      string
 	Bucket                  string
 	TarPath                 string
 	Target                  string
